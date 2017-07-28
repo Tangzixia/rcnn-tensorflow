@@ -12,7 +12,7 @@ class AlexNet(object):
         self.weights_path = weights_path
         self.dropout_ratio = 1
         self.number_of_classes = number_of_classes
-#        self.skip_layer = ['fc7', 'fc8']
+#       self.skip_layer = ['fc7', 'fc8']
         self.skip_layer = []
         self.create()
 
