@@ -10,9 +10,10 @@ class AlexNet(object):
     def __init__(self, X, number_of_classes, weights_path="bvlc_alexnet.npy"):
         self.X = X
         self.weights_path = weights_path
-        self.dropout_ratio = 0.4
+        self.dropout_ratio = 1
         self.number_of_classes = number_of_classes
-        self.skip_layer = ['fc7', 'fc8']
+#        self.skip_layer = ['fc7', 'fc8']
+        self.skip_layer = []
         self.create()
 
     def create(self):
@@ -29,7 +30,7 @@ class AlexNet(object):
 
         conv3 = self.convolution(norm2, 3, 3, 384, 1, 1, name='conv3')
         
-        conv4 = self.convolution(conv3 , 3, 3, 384, 1, 1, groups=2, name='conv4')
+        conv4 = self.convolution(conv3, 3, 3, 384, 1, 1, groups=2, name='conv4')
         
         conv5 = self.convolution(conv4, 3, 3, 256, 1, 1, groups=2, name='conv5')
         pool5 = self.max_pool(conv5, 3, 3, 2, 2, padding='VALID',  name='pool5')
@@ -44,8 +45,6 @@ class AlexNet(object):
         self.fc8 = self.fully_connected(dropout7, 4096,
                                         self.number_of_classes, name='fc8')
         
-        
-
     def load_initial_weights(self, session):
         
         weights_dict = np.load(self.weights_path, encoding='bytes').item()
@@ -94,7 +93,7 @@ class AlexNet(object):
         convolve = lambda input_group, weight_group: tf.nn.conv2d(
                                             input_group,
                                             weight_group,
-                                            strides=[-1, strideX, strideY, 1],
+                                            strides=[1, strideX, strideY, 1],
                                             padding=padding)
 
         if groups == 1:
@@ -120,10 +119,10 @@ class AlexNet(object):
             weights = tf.get_variable('weights',
                                       shape=[fc_in, fc_out],
                                       trainable=True)
-            biases = tf.get_variable('biases', shape=[fc_out], trainable=True)
+            biases = tf.get_variable('biases', [fc_out], trainable=True)
             
-        scores = tf.matmul(_input, weights) + biases
-        
+        scores = tf.nn.xw_plus_b(_input, weights, biases, name=scope.name)
+#        scores = tf.matmul(_input, weights) + biases
         return tf.nn.relu(scores)
         
     def max_pool(self, _input, filter_height, filter_width, strideY,
