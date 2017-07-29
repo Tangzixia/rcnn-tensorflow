@@ -8,12 +8,12 @@ __version__ = "0.0.1"
 
 class Imgdata():
 
-    def __init__(self, class_list):
+    def __init__(self, class_list, mode="TRAIN"):
+        self.mode = mode
         self.instances, self.labels = self.create_train_data(class_list)        
         self.length = len(self.instances)
         self.pointer = 0
         self.num_classes = len(set(self.labels))
-
         self.mean = np.array([104., 117., 124.]) ## mean of images in CIFAR-10
         self.scaling_dim = [227, 227]
 
@@ -31,9 +31,14 @@ class Imgdata():
         def splitline(line):
             line = line.split(" ")
             instances.append(line[0])
-            labels.append(line[1])
+            if self.mode == "TRAIN":
+                labels.append(line[1])
+            else:
+                ## this is a hack for using when the instances are 'test'
+                labels.append("0")
         
         list(map(splitline, self.input_lines))
+
         return instances, labels
 
 
@@ -55,8 +60,13 @@ class Imgdata():
             img -= self.mean
             instances_tosend[index] = img
 
-        one_hot_labels = np.zeros((len(instances_tosend), self.num_classes))
-        one_hot_labels[np.arange(len(instances_tosend)), labels_tosend] = 1        
+        # one_hot_labels = np.zeros((len(instances_tosend), self.num_classes))
+        # one_hot_labels[np.arange(len(instances_tosend)), labels_tosend] = 1        
+
+        one_hot_labels = np.zeros((batch_size, self.num_classes))
+        if self.mode == "TRAIN":
+            for i in range(len(labels_tosend)):
+                one_hot_labels[i][labels_tosend[i]] = 1
 
         return instances_tosend, one_hot_labels
 

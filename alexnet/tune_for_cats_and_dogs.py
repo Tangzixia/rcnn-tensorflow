@@ -60,7 +60,12 @@ val_generator = Imgdata(validation_file)
 train_batches_per_epoch = np.floor(len(train_generator.instances) / batch_size).astype(np.int16)
 val_batches_per_epoch = np.floor(len(val_generator.instances) / batch_size).astype(np.int16)
 
-num_epochs = 10
+num_epochs = 25
+
+test_generator = Imgdata("test_competition.txt", mode="TEST")
+test_batches_per_epoch = np.floor(len(test_generator.instances) / batch_size).astype(np.int16)
+
+test_scores = []
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
@@ -99,3 +104,23 @@ with tf.Session() as sess:
 
         val_generator.reset_pointer()
         train_generator.reset_pointer()
+
+    import ipdb
+    ipdb.set_trace()
+    
+    
+
+
+    for _ in range(test_batches_per_epoch):
+        batch_tx, batch_ty = test_generator.get_batch(batch_size)
+        batch_ty = one_hot_labels = np.zeros((batch_size, 2))
+        scores = sess.run(score, feed_dict={x: batch_tx,
+                                            y: batch_ty})
+        test_scores.append(scores)
+     
+
+
+
+test_op = open('output.txt', 'w')
+for item in test_scores:
+  test_op.write("%s\n" % item)
