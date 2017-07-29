@@ -60,4 +60,9 @@ class Imgdata():
 
         return instances_tosend, one_hot_labels
 
-            
+
+    def reset_pointer(self):
+        """
+        reset pointer to begin of the list
+        """
+        self.pointer = 0

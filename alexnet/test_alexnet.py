@@ -11,9 +11,6 @@ __version__ = "0.0.1"
 ## the layers except for fc7 and fc8 will be replaced with actual variables
 #train_layers = ['fc7', 'fc8']
 train_layers = []
-var_list = [v for v in tf.trainable_variables()
-            if v.name.split("/")[0] in train_layers]
-
 
 batch_size = 1
 number_of_classes = 1000

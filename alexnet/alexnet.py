@@ -7,13 +7,12 @@ __version__ = "0.0.1"
 
 class AlexNet(object):
     
-    def __init__(self, X, number_of_classes, weights_path="bvlc_alexnet.npy"):
+    def __init__(self, X, number_of_classes, skip_layers=[], weights_path="bvlc_alexnet.npy"):
         self.X = X
         self.weights_path = weights_path
-        self.dropout_ratio = 1
+        self.dropout_ratio = 0.4
         self.number_of_classes = number_of_classes
-#       self.skip_layer = ['fc7', 'fc8']
-        self.skip_layer = []
+        self.skip_layer = skip_layers
         self.create()
 
     def create(self):
