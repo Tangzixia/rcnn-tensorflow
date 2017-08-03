@@ -71,6 +71,36 @@ class Imgdata():
         return instances_tosend, one_hot_labels
 
 
+    def hack_end_batch(self, start_index):
+        instances_tosend = self.instances[start_index:-1]
+        labels_tosend = self.labels[start_index:-1]
+        labels_tosend = [int(x) for x in labels_tosend]
+
+        #self.pointer += batch_size
+        batch_size = len(self.instances) - start_index
+
+        ## reading image data
+        for index, image in enumerate(instances_tosend):
+            img = cv2.imread(image)
+            
+            img = cv2.resize(img, (self.scaling_dim[0], self.scaling_dim[1]))
+            img = img.astype(np.float32)
+            
+            img -= self.mean
+            instances_tosend[index] = img
+
+        # one_hot_labels = np.zeros((len(instances_tosend), self.num_classes))
+        # one_hot_labels[np.arange(len(instances_tosend)), labels_tosend] = 1        
+
+        one_hot_labels = np.zeros((batch_size, self.num_classes))
+        if self.mode == "TRAIN":
+            for i in range(len(labels_tosend)):
+                one_hot_labels[i][labels_tosend[i]] = 1
+
+        return instances_tosend, one_hot_labels
+        
+
+
     def reset_pointer(self):
         """
         reset pointer to begin of the list
