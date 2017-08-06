@@ -113,7 +113,7 @@ with tf.Session() as sess:
 
     for i in range(test_batches_per_epoch):
         batch_tx, batch_ty = test_generator.get_batch(batch_size)
-        batch_ty = one_hot_labels = np.zeros((batch_size, 2))
+        batch_ty = np.zeros((batch_size, 2))
         scores = sess.run(score, feed_dict={x: batch_tx,
                                             y: batch_ty})
         
