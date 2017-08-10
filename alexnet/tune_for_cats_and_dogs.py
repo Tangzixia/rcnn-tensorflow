@@ -7,8 +7,6 @@ validation_file = "validation.txt"
 
 train_layers = ['fc7', 'fc8']
 
-
-
 import os
 import tensorflow as tf
 
@@ -49,7 +47,6 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 
 
-
 from reader import Imgdata
 
 train_generator = Imgdata(train_file)
@@ -83,7 +80,7 @@ with tf.Session() as sess:
             
             # Get a batch of images and labels
             batch_xs, batch_ys = train_generator.get_batch(batch_size)
-            
+
             # And run the training op
             sess.run(train_op, feed_dict={x: batch_xs,
                                           y: batch_ys})
@@ -105,35 +102,41 @@ with tf.Session() as sess:
         val_generator.reset_pointer()
         train_generator.reset_pointer()
 
-    # import ipdb
-    # ipdb.set_trace()
-    
-    
     count = 0
 
     for i in range(test_batches_per_epoch):
+        
         batch_tx, batch_ty = test_generator.get_batch(batch_size)
         batch_ty = np.zeros((batch_size, 2))
-        scores = sess.run(score, feed_dict={x: batch_tx,
-                                            y: batch_ty})
         
-        foo = [(score[0], score[1]) for score in scores]
-        test_scores.append(foo)
+        scores = sess.run(score, feed_dict={x: batch_tx, y: batch_ty})
+        
+#        foo = [(score[0], score[1]) for score in scores]
+        test_scores.append(scores)
 
         count += batch_size
         
 
 
-    # print(count)
-    # batch_size = len(test_generator.instances) - count -1
-    # batch_tx, batch_ty = test_generator.hack_end_batch(count)
-    # batch_ty = one_hot_labels = np.zeros((batch_size, 2))
-    # x = tf.placeholder(tf.float32, [batch_size, 227, 227, 3])    
-    # scores = sess.run(score, feed_dict={x: batch_tx,
-    #                                         y: batch_ty})
+    print(count)
+    batch_size = len(test_generator.instances) - count -1
+    batch_tx, batch_ty = test_generator.hack_end_batch(count)
+    batch_ty = one_hot_labels = np.zeros((batch_size, 2))
+#    x = tf.placeholder(tf.float32, [batch_size, 227, 227, 3])    
 
-    # foo = [(score[0], score[1]) for score in scores]
-    # test_scores.append(foo)
+    batch_tx_extra = batch_tx[:45]
+    batch_ty_extra = batch_ty[:45]
+    
+    batch_tx = batch_tx + batch_tx_extra
+    batch_ty = np.concatenate((batch_ty, batch_ty_extra), axis=0)
+
+    # import ipdb
+    # ipdb.set_trace()
+    scores = sess.run(score, feed_dict={x: batch_tx,
+                                            y: batch_ty})
+
+#    foo = [(score[0], score[1]) for score in scores]
+    test_scores.append(scores)
 
 
 
